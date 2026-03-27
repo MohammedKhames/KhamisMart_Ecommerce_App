@@ -3,6 +3,10 @@
 import { IProduct } from '@/interfaces/IProducts';
 import Link from 'next/link';
 import React, { useState } from 'react';
+import apiServices from '../../services/api';
+import { Loader, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { color } from 'framer-motion';
 
 // --- SVG Icon Components ---
 const StarIcon = ({ filled=true, className = "w-5 h-5" }) => (
@@ -65,8 +69,9 @@ export default function ProductDetail({product}:{product: IProduct}) {
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
+  const [IsLoading, setIsLoading]=useState(false)
 
-  // Product data
+
  
 
   // Handle image navigation
@@ -101,6 +106,20 @@ export default function ProductDetail({product}:{product: IProduct}) {
     }
     return stars;
   };
+
+  async function addToCart() {
+    setIsLoading(true)
+    const response = await apiServices.addProductsToCart(product._id)
+    setIsLoading(false)
+   console.log(response)
+
+    toast.success(response.message, {
+      style: {
+        color:"green"
+      }
+          
+        })
+  }
 
   return (
     <div className="bg-white dark:bg-gray-900 min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
@@ -350,11 +369,14 @@ export default function ProductDetail({product}:{product: IProduct}) {
                     </svg>
                   </button>
                 </div>
-                <button
+                <button 
+                onClick={addToCart}
                   type="button"
-                  className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center justify-center gap-2"
+                  className="flex-1 disabled:bg-indigo-00 bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center justify-center gap-2"
+                disabled={IsLoading}
                 >
-                  <ShoppingBagIcon className="w-5 h-5" />
+                  {IsLoading ?(<Loader2 className='w-5 h-5 animate-spin'/>) :(<ShoppingBagIcon className="w-5 h-5" />)}
+                  
                   Add to cart
                 </button>
               </div>
