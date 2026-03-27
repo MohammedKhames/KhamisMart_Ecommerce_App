@@ -1,6 +1,7 @@
 import React from 'react'
 import apiServices from '../../../../services/api';
-import ProductCard from '@/components/ProductCard';
+import { ProductCard } from '@/components/product/ProductCard';
+// import ProductCard from '@/components/product/ProductCardOldDesign';
 
 
 export default async function Products() {
@@ -23,11 +24,20 @@ export default async function Products() {
       <div className='container mx-auto py-10'>
         <h1>products</h1>
 
-        <div className='grid grid-cols-6'>
+        <div className='grid grid-cols-4 gap-4'>
             {
                 products.map((product)=>{
                   return (
-                    <ProductCard product={product}/>
+                    <ProductCard 
+                    id={product._id}
+                    name={product.title} 
+                    images={product.images} 
+                    rating={product.ratingsAverage} 
+                    reviewCount={product.ratingsQuantity}
+                    price={product.price}
+                    originalPrice={product.price + 100}
+
+                    />
                              
                 )})}
         </div>

@@ -5,14 +5,24 @@ import { IProduct } from './../src/interfaces/IProducts';
 
 class ApiServices{
 
+    #BASE_URL=process.env.BASE_URL
+
 
     // get products
    async getProducts(): Promise<IProduct[]>{
-      const response = await fetch(process.env.BASE_URL + "/api/v1/products")
+      const response = await fetch( this.#BASE_URL + "/api/v1/products")
       const data:ResponseType<IProduct> = await response.json()
       return data.data;
     }
 
+
+    // get Product Details
+
+     async getProductsDetails(productId:string): Promise<IProduct>{
+      const response = await fetch( this.#BASE_URL + "/api/v1/products/" + productId)
+      const {data:product} = await response.json()
+      return product;
+    }
 
 
 
