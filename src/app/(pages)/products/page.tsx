@@ -1,5 +1,5 @@
 import React from 'react'
-import apiServices from '../../../services/api';
+import apiServices from '../../../../services/api';
 import ProductCard from '@/components/ProductCard';
 
 
@@ -8,21 +8,15 @@ export default async function Products() {
 
     // getting all products 
     async function getProducts(){
-      
         const products = await apiServices.getProducts()
-
         return products
     }
 
 
     const products = await getProducts();
-
     console.log(products);
 
 
-
-
-    
 
   return (
     <div>
