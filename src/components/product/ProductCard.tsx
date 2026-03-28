@@ -16,6 +16,9 @@ import {
   Loader2,
 } from "lucide-react";
 import Link from "next/link";
+import { formatPrice } from "@/helpers/formatPrice";
+import apiServices from "../../../services/api";
+import { toast } from "sonner";
 
 export interface ProductCardProps {
   name?: string;
@@ -65,15 +68,22 @@ export function ProductCard({
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async() => {
     if (isAddedToCart) return;
     setIsAddingToCart(true);
-    setTimeout(() => {
-      setIsAddingToCart(false);
-      setIsAddedToCart(true);
-      setTimeout(() => setIsAddedToCart(false), 2000);
-    }, 800);
-  };
+    const response = await apiServices.addProductsToCart(id);
+    toast.success(response.message, {
+      style: {
+        color:"green"
+      }
+          
+        })
+   
+    setIsAddingToCart(false);
+    setIsAddedToCart(true);
+    setTimeout(() => setIsAddedToCart(false), 2000);
+    }
+
 
   return (
     <Card className="  w-full max-w-sm overflow-hidden group bg-backgrou text-foreground shadow-xl hover:shadow-lg transition-all duration-300 rounded-md">
@@ -183,10 +193,10 @@ export function ProductCard({
 
           {/* Price */}
           <div className="flex items-baseline gap-2">
-            <span className="text-lg font-semibold">${price.toFixed(2)}</span>
+            <span className="text-lg font-semibold">{formatPrice(price)}</span>
             {originalPrice > price && (
               <span className="text-sm text-muted-foreground line-through">
-                ${originalPrice.toFixed(2)}
+                {formatPrice(originalPrice)}
               </span>
             )}
           </div>

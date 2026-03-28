@@ -1,9 +1,13 @@
 import React from 'react'
+import apiServices from '../../../../services/api'
+import { ShoppingCart } from './ShoppingCart'
 
-export default function Cart() {
+export default async function Cart() {
+   const cart = await apiServices.getCart()
+   console.log(cart)
+
+
   return (
-    <div>
-      Cart
-    </div>
+    <ShoppingCart cart={cart}/>
   )
 }

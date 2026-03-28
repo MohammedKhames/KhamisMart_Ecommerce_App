@@ -1,12 +1,16 @@
 
 import { ResponseType } from "@/types/ResponseType";
 import { IProduct } from './../src/interfaces/IProducts';
-import { AddToCartResponse } from "@/interfaces/cart/AddToCartResponse";
+import { IAddToCartResponse } from "@/interfaces/cart/IAddToCartResponse";
 
 
 class ApiServices{
 
     #BASE_URL=process.env.NEXT_PUBLIC_BASE_URL
+    #headers ={
+        "content-type":"application/json",
+        token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzY2OThhMmMzMGFkYTliZWM0ZTNlYiIsIm5hbWUiOiJNb2hhbW1lZCBLaGFtaXMiLCJyb2xlIjoidXNlciIsImlhdCI6MTc3NDYxMDgyNywiZXhwIjoxNzgyMzg2ODI3fQ.yP560Q3pc1Mi5LpM-1daSJjPSzeB7ubZBM1iCmNGYVE"
+    }
 
 
     // get products
@@ -27,22 +31,53 @@ class ApiServices{
 
 
     // add product to cart
- async addProductsToCart(productId:string): Promise<AddToCartResponse>{
-      const response = await fetch( this.#BASE_URL + "/api/v1/cart",{
+    async addProductsToCart(productId:string): Promise<IAddToCartResponse>{
+      const response = await fetch( this.#BASE_URL + "/api/v2/cart",{
         method:"post",
-        body:JSON.stringify({
-            productId:productId
-        }),
-      headers:{
-        "content-type":"application/json",
-        token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzY2OThhMmMzMGFkYTliZWM0ZTNlYiIsIm5hbWUiOiJNb2hhbW1lZCBLaGFtaXMiLCJyb2xlIjoidXNlciIsImlhdCI6MTc3NDYxMDgyNywiZXhwIjoxNzgyMzg2ODI3fQ.yP560Q3pc1Mi5LpM-1daSJjPSzeB7ubZBM1iCmNGYVE"
-    }
+        body:JSON.stringify({productId:productId}), 
+        headers: this.#headers 
+      })
+
+        const data = await response.json()
+        return data;
+      }
+
+
+   //get cart
+   async getCart():Promise<IAddToCartResponse>{
+     const response = await fetch( this.#BASE_URL + "/api/v2/cart",{ 
+       headers: this.#headers 
      })
-
      const data = await response.json()
-     return data;
+      return data;
 
-    }
+   }
+     
+
+   // Remove Product from cart
+   async deleteProductFromCart(productId: string):Promise<IAddToCartResponse>{
+    const response = await fetch( this.#BASE_URL + "/api/v2/cart/"+productId,{ 
+       method:"delete",
+       headers: this.#headers 
+     })
+     const data = await response.json()
+      return data;
+   }
+
+
+   // Clear Cart
+
+   async clearCart():Promise<any>{
+    const response = await fetch( this.#BASE_URL + "/api/v2/cart",{ 
+       method:"delete",
+       headers: this.#headers 
+     })
+     const data = await response.json()
+      return data;
+   }
+
+
+
 }
 
      

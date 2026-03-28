@@ -7,6 +7,7 @@ import apiServices from '../../services/api';
 import { Loader, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { color } from 'framer-motion';
+import { formatPrice } from '@/helpers/formatPrice';
 
 // --- SVG Icon Components ---
 const StarIcon = ({ filled=true, className = "w-5 h-5" }) => (
@@ -224,7 +225,7 @@ export default function ProductDetail({product}:{product: IProduct}) {
             </div>
 
             <div className="mt-4 mb-6">
-              <span className="text-2xl font-bold text-gray-900 dark:text-white">${product.price.toFixed(2)}</span>
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">{formatPrice(product.price)}</span>
               <span className="ml-2 text-sm text-green-600 dark:text-green-400">In stock</span>
             </div>
 

@@ -130,7 +130,7 @@ interface NavbarProps {
                   href="/cart"
                   className={navigationMenuTriggerStyle()}
                 >
-                  Cart
+                 Shopping Cart
                 </Link>
               </NavigationMenuItem>
 
