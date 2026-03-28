@@ -66,7 +66,6 @@ class ApiServices{
 
 
    // Clear Cart
-
    async clearCart():Promise<any>{
     const response = await fetch( this.#BASE_URL + "/api/v2/cart",{ 
        method:"delete",
@@ -75,6 +74,19 @@ class ApiServices{
      const data = await response.json()
       return data;
    }
+
+
+   // update Product count in cart
+   async updateProductCount(productId: string, count: number):Promise<IAddToCartResponse>{
+    const response = await fetch( this.#BASE_URL + "/api/v2/cart/"+productId,{ 
+       method:"put",
+       headers: this.#headers ,
+       body: JSON.stringify({count})
+     })
+     const data = await response.json()
+      return data;
+   }
+
 
 
 

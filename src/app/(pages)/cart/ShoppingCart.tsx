@@ -58,11 +58,17 @@ const [innerCart, setInnerCart] =useState<IAddToCartResponse>(cart)
 const [isClearingItems,setIsClearingItems] = useState(false)
 
 
+// the following function we donot use it here, we send them to card product 
 async function  removeItemFromShoppingCart(productId:string){
  
   const response = await apiServices.deleteProductFromCart(productId)
   setInnerCart(response)
-  toast.success(" Cart Cleared Successfully")
+  toast.success(response.message,{
+    style:{
+      color:"white",
+      background:"green"
+    }
+  })
   
 }
 
@@ -73,6 +79,19 @@ async function clearAllProductsFromTheCart(){
   setIsClearingItems(false)
 
 }
+
+async function updateProductCount(productId: string, count: number){
+  const response = await apiServices.updateProductCount(productId, count)
+  setInnerCart(response)
+  toast.success(response.message,{
+    style:{
+      color:"white",
+      background:"green"
+    }
+  })
+}
+
+
  
 
   if (innerCart.numOfCartItems === 0) {
@@ -102,7 +121,10 @@ async function clearAllProductsFromTheCart(){
             <div className="space-y-4">
               {innerCart.data.products.map((item) => (
 
-                 <CardProduct  item={item}  removeItemFromShoppingCart={removeItemFromShoppingCart}/>
+                 <CardProduct  item={item}  
+                    removeItemFromShoppingCart={removeItemFromShoppingCart}
+                    updateProductCount={updateProductCount}
+                    />
 
               ))}
             </div>

@@ -6,9 +6,13 @@ import { formatPrice } from '@/helpers/formatPrice'
 import { ICartProduct } from '@/interfaces/cart/ICartProduct'
 import { AspectRatio } from '../ui/aspect-ratio'
 
-export default function CardProduct({item,removeItemFromShoppingCart}:{item:ICartProduct,removeItemFromShoppingCart:(productId:string)=>Promise<void>}) {
+export default function CardProduct({item, removeItemFromShoppingCart,updateProductCount}:
+    {item:ICartProduct,removeItemFromShoppingCart:(productId:string)=>Promise<void>,updateProductCount:(productId:string,count:number)=>Promise<void>}) {
 
     const [isLoading, setIsLoading] = useState(false)
+    const [isUpdating, setIsUpdating] = useState(false)
+    const [isIncreasing, setIsIncreasing] = useState(false)
+    const [isDecreasing, setIsDecreasing] = useState(false)
     
     async function handleRemoveItemFromShoppingCart() {
         setIsLoading(true)
@@ -17,6 +21,25 @@ export default function CardProduct({item,removeItemFromShoppingCart}:{item:ICar
         
     }
 
+    async function handleUpdateProductCount(count:number){
+
+        if(count>item.count){
+            setIsIncreasing(true)
+        }else{
+            setIsDecreasing(true)
+        }
+        setIsUpdating(true)
+
+
+        await updateProductCount(item.product._id,count)
+
+        setIsUpdating(false)
+        setIsIncreasing(false)
+        setIsDecreasing(false)
+
+
+
+    }
 
 
   return (
@@ -35,16 +58,17 @@ export default function CardProduct({item,removeItemFromShoppingCart}:{item:ICar
             </Link>
 
             <div className="flex items-center gap-2">
-             <Button  variant="outline"  size="icon" className="size-8"
-                // onClick={() => updateQuantity(item.id, -1)}
+             <Button  disabled={item.count == 1 || isUpdating} variant="outline"  size="icon" className="size-8"
+                onClick={() => handleUpdateProductCount(item.count-1)}
                 >
-                <Minus className="size-3" />
+              {isDecreasing ?<Loader2 className="size-3 animate-spin"/> : <Minus className="size-3" />} 
             </Button>
             <span className="w-8 text-center">{item.count}</span>
-            <Button variant="outline" size="icon" className="size-8"
-                // onClick={() => updateQuantity(item.id, 1)}
+            <Button disabled={isUpdating} variant="outline" size="icon" className="size-8"
+                onClick={() => handleUpdateProductCount(item.count+1)}
                 >
-            <Plus className="size-3" />
+             {isIncreasing ?<Loader2 className="size-3 animate-spin"/> : <Plus className="size-3"/>} 
+            
             </Button>
             </div>
         </div>
