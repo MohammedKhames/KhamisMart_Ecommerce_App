@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import Link from "next/link";
 import { formatPrice } from "@/helpers/formatPrice";
 import apiServices from "../../../services/api";
 import { toast } from "sonner";
+import cartContext from "@/contexts/cartContext";
 
 export interface ProductCardProps {
   name?: string;
@@ -57,6 +58,7 @@ export function ProductCard({
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isAddedToCart, setIsAddedToCart] = useState(false);
+  //const {setCartCount}=useContext(cartContext)
 
   const nextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -72,6 +74,7 @@ export function ProductCard({
     if (isAddedToCart) return;
     setIsAddingToCart(true);
     const response = await apiServices.addProductsToCart(id);
+    //setCartCount(response.data.numberOfCardItems)
     toast.success(response.message, {
       style: {
         color:"green"

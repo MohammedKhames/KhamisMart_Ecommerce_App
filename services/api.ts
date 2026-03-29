@@ -2,6 +2,10 @@
 import { ResponseType } from "@/types/ResponseType";
 import { IProduct } from './../src/interfaces/IProducts';
 import { IAddToCartResponse } from "@/interfaces/cart/IAddToCartResponse";
+import { ICheckout } from "@/interfaces/Payments/ICheckout ";
+import { IShippingAddress } from "@/interfaces/Payments/IShippingAddress";
+import { IOrdersResponse } from "@/interfaces/Payments/IOrdersResponse ";
+import { SignInResponse } from "@/types/SignInResponse";
 
 
 class ApiServices{
@@ -88,6 +92,66 @@ class ApiServices{
    }
 
 
+
+   //checkout
+   async checkout(cartId: string) {
+    return await fetch(this.#BASE_URL + "/api/v1/orders/checkout-session/" + cartId + "?url=http://localhost:3000",
+    {
+      body: JSON.stringify({
+        shippingAddress: {
+          details: "details",
+          phone: "01010700999",
+          city: "Cairo",
+        },
+      }),
+      headers: this.#headers,
+      method:"post"
+    }).then(res => res.json());
+}
+
+
+
+
+
+  // ✅ checkout - NEW
+  async checkout_new(cartId: string, shippingAddress: IShippingAddress): Promise<ICheckout> {
+    const response = await fetch(
+      this.#BASE_URL + "/api/v1/orders/checkout-session/" + cartId + "?url=http://localhost:3000",
+      {
+        method: "post",
+        headers: this.#headers,
+        body: JSON.stringify({ shippingAddress }),
+      }
+    )
+    const data: ICheckout = await response.json()
+    return data;
+  }
+
+  // ✅ getOrders - NEW
+  async getOrders(): Promise<IOrdersResponse> {
+    const response = await fetch(this.#BASE_URL + "/api/v1/orders", {
+      headers: this.#headers,
+    })
+    const data: IOrdersResponse = await response.json()
+    return data;
+  }
+
+
+
+
+  async signIn(email:string, password:string): Promise<SignInResponse>{
+    const response =await fetch(this.#BASE_URL+"/api/v1/auth/signin",{
+      method:"post",
+      headers:this.#headers,
+      body:JSON.stringify({
+        email,
+        password
+      })
+    })
+    const data = await response.json()
+      return data;
+
+  }
 
 
 }

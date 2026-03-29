@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2, Minus, Plus, ShoppingCart as ShoppingCartIcon, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { formatPrice } from "@/helpers/formatPrice";
 import apiServices from "../../../../services/api";
 import CardProduct from "@/components/product/CardProduct";
 import { toast } from "sonner";
+import { cartContext } from "@/contexts/cartContext";
 
 interface CartItem {
   id: string;
@@ -56,6 +57,8 @@ const ShoppingCart = ({cart}: {cart: IAddToCartResponse;}) => {
 
 const [innerCart, setInnerCart] =useState<IAddToCartResponse>(cart)
 const [isClearingItems,setIsClearingItems] = useState(false)
+const [checkoutloading,setCheckoutloading] = useState(false)
+
 
 
 // the following function we donot use it here, we send them to card product 
@@ -91,8 +94,22 @@ async function updateProductCount(productId: string, count: number){
   })
 }
 
+async function handleCheckout (){
+  setCheckoutloading(true)
+  const response = await apiServices.checkout(innerCart.cartId)
+  setCheckoutloading(false)
+  location.href=response.session.url
+}
 
+  const {setCartCount}=useContext(cartContext)
+
+  useEffect(()=>{
+    setCartCount(innerCart.numOfCartItems);
+    
+  },[innerCart])
  
+ 
+
 
   if (innerCart.numOfCartItems === 0) {
     return (
@@ -159,13 +176,14 @@ async function updateProductCount(productId: string, count: number){
                 </div>
               </div>
 
-              <Button size="lg" className="mt-6 w-full">
+              <Button disabled={checkoutloading} onClick={handleCheckout} size="lg" className="mt-6 w-full" >
+                {checkoutloading && <Loader2 className="animate-spin"/>}
                 Proceed to Checkout
               </Button>
 
-              <p className="mt-4 text-center text-xs text-muted-foreground">
-                Taxes calculated at checkout
-              </p>
+              <Button variant="outline" className="mt-2 w-full" asChild>
+                <Link href="/products"> Continue Shopping </Link>
+              </Button>
             </div>
           </div>
         </div>
