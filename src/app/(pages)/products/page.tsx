@@ -6,6 +6,8 @@ import { ProductCard } from '@/components/product/ProductCard';
 
 export default async function Products() {
 
+const ORANGE = "#FF9900";
+const NAVY   = "#131921";
 
     // getting all products 
     async function getProducts(){
@@ -20,10 +22,9 @@ export default async function Products() {
 
 
   return (
-    <div>
+    
       <div className='container mx-auto py-10'>
-        <h1>products</h1>
-
+    
         <div className='grid grid-cols-4 gap-4'>
             {
                 products.map((product)=>{
@@ -42,6 +43,6 @@ export default async function Products() {
                 )})}
         </div>
       </div>
-    </div>
+   
   )
 }

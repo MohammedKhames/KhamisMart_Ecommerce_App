@@ -1,9 +1,12 @@
-import React from 'react'
+import Loading from "./products/loading";
+
+
 
 export default function loading() {
   return (
-    <div>
-      loading
+    <div className="flex items-center justify-center h-screen">
+      <Loading />
     </div>
-  )
+  );
+  
 }

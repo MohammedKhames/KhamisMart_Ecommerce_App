@@ -6,6 +6,8 @@ import { ICheckout } from "@/interfaces/Payments/ICheckout ";
 import { IShippingAddress } from "@/interfaces/Payments/IShippingAddress";
 import { IOrdersResponse } from "@/interfaces/Payments/IOrdersResponse ";
 import { SignInResponse } from "@/types/SignInResponse";
+import { ICategory } from "@/interfaces/ICategory";
+import { RegisterResponse } from "@/types/registerResponse";
 
 
 class ApiServices{
@@ -139,6 +141,18 @@ class ApiServices{
 
 
 
+  // get categories
+   async getCategories(): Promise<ICategory[]>{
+      const response = await fetch( this.#BASE_URL + "/api/v1/categories")
+      const data:ResponseType<ICategory> = await response.json()
+      return data.data;
+    }
+
+
+
+    
+  // signin
+
   async signIn(email:string, password:string): Promise<SignInResponse>{
     const response =await fetch(this.#BASE_URL+"/api/v1/auth/signin",{
       method:"post",
@@ -153,6 +167,25 @@ class ApiServices{
 
   }
 
+
+
+
+    // signup
+    async signUp(name:string, email:string, password:string, rePassword:string, phone:string): Promise<RegisterResponse>{
+      const response =await fetch(this.#BASE_URL+"/api/v1/auth/signup",{
+        method:"post",
+        headers:this.#headers,
+        body:JSON.stringify({
+          name,
+          email,
+          password,
+          rePassword,
+          phone
+        })
+      })
+      const data = await response.json()
+        return data;
+    }
 
 }
 

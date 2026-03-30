@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Exo } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar/Navbar";
 import Footer from "@/components/layout/Footer/Footer";
@@ -7,15 +7,12 @@ import { Toaster } from "@/components/ui/sonner";
 import CartContextProvider from "@/contexts/cartContext";
 import ProvidersWrapper from "@/providers/ProvidersWrapper";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const exoFont = Exo({
+
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -28,21 +25,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="antialiased">
-           <div className="container">
+    <html lang="en">
+      <body  className={exoFont.className}>
+           
            <ProvidersWrapper>
           
               <Navbar/>
+
+              <div className="container max-w-[1200px] mx-auto px-6 py-10">
               {children}  
-            
+              </div>
+
               <Toaster />
               <Footer/>
             </ProvidersWrapper>
-           </div>
+           
      </body>
     </html>
   );
