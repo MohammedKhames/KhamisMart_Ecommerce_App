@@ -82,6 +82,7 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  
 }
 
 .dark {
@@ -152,3 +153,18 @@ h1,h2,h3,h4,h5,h6{
     @apply mx-auto
   }
 }
+
+/* ── KhamisMart Brand Tokens ── */
+:root {
+  --brand-orange: #FF9900;
+  --brand-navy:   #131921;
+}
+
+/* Convenience classes */
+.brand-bg-orange { background-color: var(--brand-orange); }
+.brand-bg-navy   { background-color: var(--brand-navy);   }
+.brand-text-orange { color: var(--brand-orange); }
+.brand-text-navy   { color: var(--brand-navy);   }
+
+
+

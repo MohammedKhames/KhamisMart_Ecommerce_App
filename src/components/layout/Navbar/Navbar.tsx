@@ -43,12 +43,19 @@ import { usePathname, useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 import { cartContext } from "@/contexts/cartContext";
 import { signOut, useSession } from "next-auth/react";
+import { ORANGE, NAVY } from "@/utils/colors";
 
-const navItems = [
+// Public nav items – visible to everyone
+const publicNavItems = [
   { href: "/",         label: "Home"   },
   { href: "/products", label: "Shop"   },
   { href: "/brands",   label: "Brands" },
+];
+
+// Protected nav items – visible only when authenticated
+const protectedNavItems = [
   { href: "/orders",   label: "Orders" },
+  { href: "/wishlist", label: "Wishlist" },
 ];
 
 const categories = [
@@ -59,16 +66,21 @@ const categories = [
 ];
 
 // Brand colors
-const ORANGE = "#FF9900";
-const NAVY   = "#131921";
+
+
 
 export default function Navbar() {
   const pathname = usePathname();
   const { cartCount, isLoading } = useContext(cartContext);
-  // const { wishlistCount, isWishlistLoading } = useContext(wishlistContext);
   const session = useSession();
   const router  = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const isAuthenticated = session.status === "authenticated";
+
+  // All nav items based on auth status
+  const navItems = isAuthenticated
+    ? [...publicNavItems, ...protectedNavItems]
+    : publicNavItems;
 
   const Logo = () => (
     <Link href="/" className="flex items-center gap-2 shrink-0">
@@ -83,6 +95,12 @@ export default function Navbar() {
       </span>
     </Link>
   );
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
     <header className="w-full sticky top-0 z-50 shadow-sm">
@@ -103,14 +121,14 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-4">
-            <a href="tel:+18001234567" className="hidden md:flex items-center gap-1 hover:text-[#FF9900] transition-colors">
+            <a href="tel:+96560927541" className="hidden md:flex items-center gap-1 hover:text-[#FF9900] transition-colors">
               <Phone className="h-3 w-3" /> +(965) 60927541
             </a>
             <a href="mailto:support@khamismart.com" className="hidden md:flex items-center gap-1 hover:text-[#FF9900] transition-colors">
               <Mail className="h-3 w-3" /> support@khamismart.com
             </a>
 
-            {session.status === "unauthenticated" ? (
+            {!isAuthenticated ? (
               <div className="flex items-center gap-3">
                 <Link
                   href="/auth/signin"
@@ -125,7 +143,7 @@ export default function Navbar() {
               </div>
             ) : (
               <button
-                onClick={() => signOut({ callbackUrl: "api/auth/signin" })}
+                onClick={() => signOut({ callbackUrl: "/auth/signin" })}
                 className="flex items-center gap-1 hover:text-[#FF9900] transition-colors"
               >
                 <User className="h-3 w-3" /> Sign Out
@@ -154,12 +172,10 @@ export default function Navbar() {
                   placeholder="Search for products, brands and more..."
                   className="border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-white text-sm pl-4"
                   style={{ color: NAVY }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") router.push(`/products?search=${searchQuery}`);
-                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
                 />
                 <button
-                  onClick={() => router.push(`/products?search=${searchQuery}`)}
+                  onClick={handleSearch}
                   className="px-5 flex items-center justify-center transition-colors hover:opacity-90"
                   style={{ background: ORANGE }}
                 >
@@ -232,21 +248,14 @@ export default function Navbar() {
                 </div>
               </div>
 
-              {/* Wishlist */}
-              <Link href="/wishlist">
-                <Button variant="ghost" size="icon" className="relative text-gray-500 hover:text-[#FF9900] hover:bg-orange-50">
-                  <Heart className="h-5 w-5" />
-                  {/* Uncomment when wishlistContext is ready:
-                  {wishlistCount > 0 && (
-                    <span
-                      className="absolute -top-1 -right-1 h-4 w-4 rounded-full text-xs font-bold flex items-center justify-center"
-                      style={{ background: ORANGE, color: NAVY }}
-                    >
-                      {isWishlistLoading ? <Loader2 className="h-2.5 w-2.5 animate-spin" /> : wishlistCount}
-                    </span>
-                  )} */}
-                </Button>
-              </Link>
+              {/* Wishlist – only when authenticated */}
+              {isAuthenticated && (
+                <Link href="/wishlist">
+                  <Button variant="ghost" size="icon" className="relative text-gray-500 hover:text-[#FF9900] hover:bg-orange-50">
+                    <Heart className="h-5 w-5" />
+                  </Button>
+                </Link>
+              )}
 
               {/* Cart */}
               <Link href="/cart">
@@ -264,9 +273,9 @@ export default function Navbar() {
               </Link>
 
               {/* Auth button */}
-              {session.status === "authenticated" ? (
+              {isAuthenticated ? (
                 <Button
-                  onClick={() => signOut({ callbackUrl: "api/auth/signin" })}
+                  onClick={() => signOut({ callbackUrl: "/auth/signin" })}
                   className="hidden md:flex rounded-full gap-2 font-bold text-sm hover:opacity-90"
                   style={{ background: ORANGE, color: NAVY }}
                 >
@@ -295,8 +304,14 @@ export default function Navbar() {
                   </SheetHeader>
 
                   <div className="flex mt-4 rounded-full overflow-hidden" style={{ border: `2px solid ${ORANGE}` }}>
-                    <Input placeholder="Search products..." className="border-0 focus-visible:ring-0 rounded-none" />
-                    <button className="px-4 flex items-center" style={{ background: ORANGE }}>
+                    <Input
+                      placeholder="Search products..."
+                      className="border-0 focus-visible:ring-0 rounded-none"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
+                    />
+                    <button className="px-4 flex items-center" style={{ background: ORANGE }} onClick={handleSearch}>
                       <Search className="h-4 w-4" style={{ color: NAVY }} />
                     </button>
                   </div>
@@ -327,7 +342,7 @@ export default function Navbar() {
                     </Link>
 
                     <div className="flex flex-col gap-3 mt-4 border-t pt-4">
-                      {session.status === "unauthenticated" ? (
+                      {!isAuthenticated ? (
                         <Button
                           onClick={() => router.push("/auth/signin")}
                           className="rounded-full font-bold hover:opacity-90"
@@ -337,7 +352,7 @@ export default function Navbar() {
                         </Button>
                       ) : (
                         <Button
-                          onClick={() => signOut({ callbackUrl: "api/auth/signin" })}
+                          onClick={() => signOut({ callbackUrl: "/auth/signin" })}
                           variant="outline"
                           className="rounded-full"
                           style={{ borderColor: ORANGE, color: ORANGE }}

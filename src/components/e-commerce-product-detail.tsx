@@ -8,6 +8,7 @@ import { Loader, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { color } from 'framer-motion';
 import { formatPrice } from '@/helpers/formatPrice';
+import { useSession } from 'next-auth/react';
 
 // --- SVG Icon Components ---
 const StarIcon = ({ filled=true, className = "w-5 h-5" }) => (
@@ -71,11 +72,8 @@ export default function ProductDetail({product}:{product: IProduct}) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
   const [IsLoading, setIsLoading]=useState(false)
+  const { data: session } = useSession()
 
-
- 
-
-  // Handle image navigation
   const nextImage = () => {
     setCurrentImageIndex((prevIndex) => 
       prevIndex === product.images.length - 1 ? 0 : prevIndex + 1
@@ -88,7 +86,6 @@ export default function ProductDetail({product}:{product: IProduct}) {
     );
   };
 
-  // Handle quantity changes
   const decreaseQuantity = () => {
     if (quantity > 1) setQuantity(quantity - 1);
   };
@@ -97,7 +94,6 @@ export default function ProductDetail({product}:{product: IProduct}) {
     setQuantity(quantity + 1);
   };
 
-  // Generate stars for rating
   const renderStars = (rating:number) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -109,10 +105,11 @@ export default function ProductDetail({product}:{product: IProduct}) {
   };
 
   async function addToCart() {
+    const token = session?.user?.token
+    if (!token) { toast.error("Please sign in"); return }
     setIsLoading(true)
-    const response = await apiServices.addProductsToCart(product._id)
+    const response = await apiServices.addProductsToCart(product._id, token)
     setIsLoading(false)
-   console.log(response)
 
     toast.success(response.message, {
       style: {

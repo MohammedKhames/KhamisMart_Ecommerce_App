@@ -13,102 +13,55 @@ import apiServices from "../../../../services/api";
 import CardProduct from "@/components/product/CardProduct";
 import { toast } from "sonner";
 import { cartContext } from "@/contexts/cartContext";
+import { useSession } from "next-auth/react";
+import { ORANGE, NAVY } from "@/utils/colors";
 
-interface CartItem {
-  id: string;
-  name: string;
-  image: string;
-  price: number;
-  quantity: number;
-  variant?: string;
-}
 
-const DEFAULT_ITEMS: CartItem[] = [
-  {
-    id: "1",
-    name: "Minimalist Beige Sneakers",
-    image:
-      "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/ecommerce/clothes/Minimalist-Beige-Sneakers-2.png",
-    price: 120.0,
-    quantity: 1,
-    variant: "Size: EU 36",
-  },
-  {
-    id: "2",
-    name: "Embroidered Blue Top",
-    image:
-      "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/ecommerce/clothes/Woman-in-Embroidered-Blue-Top-2.png",
-    price: 140.0,
-    quantity: 1,
-    variant: "Size: S",
-  },
-  {
-    id: "3",
-    name: "Classic Fedora Hat",
-    image:
-      "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/ecommerce/accessories/Classic-Fedora-Hat-2.png",
-    price: 84.0,
-    quantity: 1,
-    variant: "Color: Beige",
-  },
-];
+
 
 const ShoppingCart = ({cart}: {cart: IAddToCartResponse;}) => {
 
-const [innerCart, setInnerCart] =useState<IAddToCartResponse>(cart)
-const [isClearingItems,setIsClearingItems] = useState(false)
-const [checkoutloading,setCheckoutloading] = useState(false)
+const [innerCart, setInnerCart] = useState<IAddToCartResponse>(cart)
+const [isClearingItems, setIsClearingItems] = useState(false)
+const [checkoutloading, setCheckoutloading] = useState(false)
+const { data: session } = useSession()
+const token = session?.user?.token ?? ""
 
-
-
-// the following function we donot use it here, we send them to card product 
-async function  removeItemFromShoppingCart(productId:string){
- 
-  const response = await apiServices.deleteProductFromCart(productId)
+async function removeItemFromShoppingCart(productId: string) {
+  const response = await apiServices.deleteProductFromCart(productId, token)
   setInnerCart(response)
-  toast.success(response.message,{
-    style:{
-      color:"white",
-      background:"green"
-    }
+  toast.success(response.message, {
+    style: { background: NAVY, color: "#fff", border: `1px solid ${ORANGE}` }
   })
-  
 }
 
-async function clearAllProductsFromTheCart(){
+async function clearAllProductsFromTheCart() {
   setIsClearingItems(true)
-  const response = await apiServices.clearCart()
+  const response = await apiServices.clearCart(token)
   setInnerCart(response)
   setIsClearingItems(false)
-
 }
 
-async function updateProductCount(productId: string, count: number){
-  const response = await apiServices.updateProductCount(productId, count)
+async function updateProductCount(productId: string, count: number) {
+  const response = await apiServices.updateProductCount(productId, count, token)
   setInnerCart(response)
-  toast.success(response.message,{
-    style:{
-      color:"white",
-      background:"green"
-    }
+  toast.success(response.message, {
+    style: { background: NAVY, color: "#fff", border: `1px solid ${ORANGE}` }
   })
 }
 
-async function handleCheckout (){
+async function handleCheckout() {
   setCheckoutloading(true)
-  const response = await apiServices.checkout(innerCart.cartId)
+  const response = await apiServices.checkout(innerCart.cartId, token)
   setCheckoutloading(false)
-  location.href=response.session.url
+  location.href = response.session.url
 }
 
-  const {setCartCount}=useContext(cartContext)
+  const { setCartCount } = useContext(cartContext)
 
-  useEffect(()=>{
+  useEffect(() => {
     setCartCount(innerCart.numOfCartItems);
-    
-  },[innerCart])
- 
- 
+  }, [innerCart, setCartCount])
 
 
   if (innerCart.numOfCartItems === 0) {
@@ -117,9 +70,10 @@ async function handleCheckout (){
         <div className="container max-w-lg text-center">
           <h1 className="mb-4 text-2xl font-semibold">Your cart is empty</h1>
           <p className="mb-8 text-muted-foreground">
-            Looks like you haven't added anything yet.
+            Looks like you haven&apos;t added anything yet.
           </p>
-          <Button asChild>
+          <Button asChild className="rounded-full font-bold hover:opacity-90"
+            style={{ background: ORANGE, color: NAVY }}>
             <Link href="/products">Continue Shopping</Link>
           </Button>
         </div>
@@ -128,9 +82,11 @@ async function handleCheckout (){
   }
 
   return (
-    <section className="">
+    <section>
       <div className="container grid gap-8">
-        <h1 className="mb-8 text-3xl font-semibold">Shopping Cart</h1>
+        <h1 className="mb-8 text-3xl font-semibold" style={{ color: NAVY }}>
+          Shopping <span style={{ color: ORANGE }}>Cart</span>
+        </h1>
 
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Cart Items */}
@@ -138,7 +94,7 @@ async function handleCheckout (){
             <div className="space-y-4">
               {innerCart.data.products.map((item) => (
 
-                 <CardProduct  item={item}  
+                 <CardProduct key={item._id ?? item.product?._id} item={item}
                     removeItemFromShoppingCart={removeItemFromShoppingCart}
                     updateProductCount={updateProductCount}
                     />
@@ -149,8 +105,8 @@ async function handleCheckout (){
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="rounded-lg border bg-card p-6">
-              <h2 className="mb-4 text-lg font-semibold">Order Summary</h2>
+            <div className="rounded-2xl border bg-card p-6 shadow-sm">
+              <h2 className="mb-4 text-lg font-semibold" style={{ color: NAVY }}>Order Summary</h2>
 
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
@@ -165,23 +121,25 @@ async function handleCheckout (){
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span>{formatPrice(0)}</span>
+                  <span className="text-green-600 font-medium">Free</span>
                 </div>
 
                 <Separator />
 
-                <div className="flex justify-between font-semibold">
+                <div className="flex justify-between font-semibold text-lg">
                   <span>Total</span>
-                  <span>{formatPrice(innerCart.data.totalCartPrice)}</span>
+                  <span style={{ color: ORANGE }}>{formatPrice(innerCart.data.totalCartPrice)}</span>
                 </div>
               </div>
 
-              <Button disabled={checkoutloading} onClick={handleCheckout} size="lg" className="mt-6 w-full" >
-                {checkoutloading && <Loader2 className="animate-spin"/>}
+              <Button disabled={checkoutloading} onClick={handleCheckout} size="lg"
+                className="mt-6 w-full rounded-xl font-bold hover:opacity-90"
+                style={{ background: ORANGE, color: NAVY }}>
+                {checkoutloading && <Loader2 className="animate-spin mr-2"/>}
                 Proceed to Checkout
               </Button>
 
-              <Button variant="outline" className="mt-2 w-full" asChild>
+              <Button variant="outline" className="mt-2 w-full rounded-xl" asChild>
                 <Link href="/products"> Continue Shopping </Link>
               </Button>
             </div>
@@ -189,13 +147,12 @@ async function handleCheckout (){
         </div>
 
         <Button
-        variant={"secondary"}
-        style={{backgroundColor:"red",color:"white"}}
-        className="w-fit px-8 disabled:bg-red-300"
+        variant={"destructive"}
+        className="w-fit px-8 rounded-xl disabled:opacity-50"
         onClick={clearAllProductsFromTheCart}
         disabled={isClearingItems}
         > 
-        {isClearingItems && <Loader2 className="animate-spin"/>}
+        {isClearingItems && <Loader2 className="animate-spin mr-2"/>}
         Clear Cart</Button>
       </div>
     </section>

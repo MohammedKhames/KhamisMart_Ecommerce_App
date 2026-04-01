@@ -14,9 +14,10 @@ const Twitter   = FaTwitter;
 const Instagram = FaInstagram;
 const Youtube   = FaYoutube;
 import Link from "next/link";
+import { ORANGE, NAVY } from "@/utils/colors";
 
-const ORANGE = "#FF9900";
-const NAVY   = "#131921";
+
+
 
 const shopLinks = [
   { href: "/products",              label: "All Products"    },
