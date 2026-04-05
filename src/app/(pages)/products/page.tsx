@@ -23,14 +23,23 @@ export default async function Products({ searchParams }: Props) {
   }
 
   // Client-side filter based on search query / brand / category slug
+  // Client-side filter based on search query / brand / category slug
   const query = search?.toLowerCase().trim() ?? ""
   const filtered = products.filter((p) => {
-    if (!query) return true
-    return (
-      p.title.toLowerCase().includes(query) ||
-      p.brand?.name?.toLowerCase().includes(query) ||
-      p.category?.name?.toLowerCase().includes(query)
-    )
+    // If specific ID filters are provided, they take priority
+    if (category && p.category?._id !== category) return false
+    if (brand && p.brand?._id !== brand) return false
+    
+    // If search query is provided
+    if (query) {
+      return (
+        p.title.toLowerCase().includes(query) ||
+        p.brand?.name?.toLowerCase().includes(query) ||
+        p.category?.name?.toLowerCase().includes(query)
+      )
+    }
+    
+    return true
   })
 
   return (

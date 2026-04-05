@@ -40,8 +40,10 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { cartContext } from "@/contexts/cartContext";
+import apiServices from "@/../services/api";
+import { IProduct } from "@/interfaces/IProducts";
 import { signOut, useSession } from "next-auth/react";
 import { ORANGE, NAVY } from "@/utils/colors";
 
@@ -54,20 +56,10 @@ const publicNavItems = [
 
 // Protected nav items – visible only when authenticated
 const protectedNavItems = [
-  { href: "/orders",   label: "Orders" },
   { href: "/wishlist", label: "Wishlist" },
 ];
 
-const categories = [
-  { href: "/categories/electronics", label: "Electronics"  },
-  { href: "/categories/fashion",     label: "Fashion"      },
-  { href: "/categories/home",        label: "Home & Garden" },
-  { href: "/categories/sports",      label: "Sports"       },
-];
-
-// Brand colors
-
-
+// Categories fetched dynamically from API
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -75,7 +67,42 @@ export default function Navbar() {
   const session = useSession();
   const router  = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<IProduct[]>([]);
+  const [allProducts, setAllProducts] = useState<IProduct[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const isAuthenticated = session.status === "authenticated";
+
+  // Fetch all products for search autocomplete and categories
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          apiServices.getProducts(),
+          apiServices.getCategories()
+        ]);
+        setAllProducts(productsData || []);
+        setCategories(categoriesData || []);
+      } catch (error) {
+        console.error("Failed to fetch data for Navbar", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Filter products as user types
+  useEffect(() => {
+    if (searchQuery.trim().length > 1) {
+      const filtered = allProducts.filter(p => 
+        p.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 5); // Show top 5 results
+      setSearchResults(filtered);
+      setShowSearchDropdown(true);
+    } else {
+      setSearchResults([]);
+      setShowSearchDropdown(false);
+    }
+  }, [searchQuery, allProducts]);
 
   // All nav items based on auth status
   const navItems = isAuthenticated
@@ -85,7 +112,7 @@ export default function Navbar() {
   const Logo = () => (
     <Link href="/" className="flex items-center gap-2 shrink-0">
       <div
-        className="flex items-center justify-center w-9 h-9 rounded-lg"
+        className="flex items-center justify-center w-9 h-9 rounded-lg shadow-sm"
         style={{ background: ORANGE }}
       >
         <ShoppingCart className="h-5 w-5" style={{ color: NAVY }} />
@@ -103,128 +130,170 @@ export default function Navbar() {
   };
 
   return (
-    <header className="w-full sticky top-0 z-50 shadow-sm">
+    <header className="w-full sticky top-0 z-[50] shadow-sm">
 
       {/* ── Top Bar ── */}
-      <div style={{ background: NAVY }} className="text-[#cccccc] text-xs py-1.5 px-4">
+      <div style={{ background: NAVY }} className="text-[#cccccc] text-xs py-2 px-4 border-b border-white/5">
         <div className="container mx-auto flex items-center justify-between">
 
-          <div className="flex items-center gap-5">
-            <span className="flex items-center gap-1.5">
+          <div className="flex items-center gap-6">
+            <span className="flex items-center gap-2">
               <Truck className="h-3.5 w-3.5" style={{ color: ORANGE }} />
               Free Shipping on Orders 500 EGP
             </span>
-            <span className="hidden sm:flex items-center gap-1.5">
+            <span className="hidden lg:flex items-center gap-2 opacity-80">
               <Sparkles className="h-3.5 w-3.5" style={{ color: ORANGE }} />
               New Arrivals Daily
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <a href="tel:+96560927541" className="hidden md:flex items-center gap-1 hover:text-[#FF9900] transition-colors">
+          <div className="flex items-center gap-5">
+            <a href="tel:+96560927541" className="hidden md:flex items-center gap-1.5 hover:text-[#FF9900] transition-colors">
               <Phone className="h-3 w-3" /> +(965) 60927541
             </a>
-            <a href="mailto:support@khamismart.com" className="hidden md:flex items-center gap-1 hover:text-[#FF9900] transition-colors">
-              <Mail className="h-3 w-3" /> support@khamismart.com
-            </a>
-
+            
             {!isAuthenticated ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
+                <Link href="/auth/signin" className="hover:text-[#FF9900] transition-colors font-medium">Sign In</Link>
                 <Link
-                  href="/auth/signin"
-                  className="flex items-center gap-1 font-semibold px-3 py-0.5 rounded-full text-[11px] transition-colors"
+                  href="/auth/signup"
+                  className="px-4 py-1 rounded-full font-bold text-[11px] transition-all hover:scale-105 active:scale-95"
                   style={{ background: ORANGE, color: NAVY }}
                 >
-                  <User className="h-3 w-3" /> Sign In
-                </Link>
-                <Link href="/auth/signup" className="flex items-center gap-1 hover:text-[#FF9900] transition-colors">
-                  <UserPlus className="h-3 w-3" /> Sign Up
+                  Join Now
                 </Link>
               </div>
             ) : (
-              <button
-                onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-                className="flex items-center gap-1 hover:text-[#FF9900] transition-colors"
-              >
-                <User className="h-3 w-3" /> Sign Out
-              </button>
+              <div className="flex items-center gap-4">
+                {/* Name moved to Account button as per request */}
+                <button
+                  onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+                  className="flex items-center gap-1.5 hover:text-[#FF9900] transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
             )}
           </div>
         </div>
       </div>
 
       {/* ── Main Navbar ── */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center gap-4">
+      <div className="bg-white/95 backdrop-blur-md border-b border-gray-100">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center gap-6">
 
             <Logo />
 
             {/* Search */}
-            <div className="flex-1 max-w-2xl hidden sm:flex">
+            <div className="flex-1 max-w-xl hidden sm:flex mx-4 relative">
               <div
-                className="flex w-full rounded-full overflow-hidden transition-all"
-                style={{ border: `2px solid ${ORANGE}` }}
+                className="flex w-full rounded-2xl overflow-hidden transition-all shadow-sm ring-1 ring-gray-100"
+                style={{ border: `1.5px solid ${ORANGE}` }}
               >
                 <Input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search for products, brands and more..."
-                  className="border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-white text-sm pl-4"
+                  onFocus={() => searchQuery.trim().length > 1 && setShowSearchDropdown(true)}
+                  placeholder="What are you looking for today?"
+                  className="border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-white text-sm pl-5 h-11"
                   style={{ color: NAVY }}
-                  onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
+                  onKeyDown={(e) => { 
+                    if (e.key === "Enter") {
+                      handleSearch();
+                      setShowSearchDropdown(false);
+                    }
+                  }}
                 />
                 <button
                   onClick={handleSearch}
-                  className="px-5 flex items-center justify-center transition-colors hover:opacity-90"
+                  className="px-6 flex items-center justify-center transition-colors hover:opacity-90 active:scale-95"
                   style={{ background: ORANGE }}
                 >
-                  <Search className="h-4 w-4" style={{ color: NAVY }} />
+                  <Search className="h-4.5 w-4.5" style={{ color: NAVY }} />
                 </button>
               </div>
+
+              {/* Search Dropdown */}
+              {showSearchDropdown && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-[100] overflow-hidden">
+                  {searchResults.map((product) => (
+                    <Link
+                      key={product._id}
+                      href={`/products/${product._id}`}
+                      onClick={() => {
+                        setSearchQuery("");
+                        setShowSearchDropdown(false);
+                      }}
+                      className="flex items-center gap-3 p-3 hover:bg-orange-50 transition-colors border-b border-gray-50 last:border-0"
+                    >
+                      <img src={product.imageCover} alt={product.title} className="w-10 h-10 object-cover rounded-md" />
+                      <div>
+                        <p className="text-sm font-bold text-gray-800 line-clamp-1">{product.title}</p>
+                        <p className="text-xs text-orange-600 font-bold">{product.price} EGP</p>
+                      </div>
+                    </Link>
+                  ))}
+                  <button 
+                    onClick={handleSearch}
+                    className="w-full p-2 text-center text-xs font-bold text-navy-900 bg-gray-50 hover:bg-gray-100 transition-colors"
+                    style={{ color: NAVY }}
+                  >
+                    View all results
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Desktop Nav */}
             <NavigationMenu className="hidden lg:flex">
-              <NavigationMenuList className="gap-0">
+              <NavigationMenuList className="gap-2">
                 {navItems.map((item) => (
                   <NavigationMenuItem key={item.href}>
                     <NavigationMenuLink
                       asChild
                       className={cn(
                         navigationMenuTriggerStyle(),
-                        "text-gray-600 text-sm font-medium bg-transparent hover:bg-orange-50 transition-colors",
-                        pathname === item.href
-                          ? "font-semibold bg-orange-50"
-                          : "hover:text-[#FF9900]"
+                        "text-gray-600 text-sm font-semibold bg-transparent hover:bg-orange-50 transition-colors h-11 px-4",
+                        pathname === item.href && "text-[#FF9900]"
                       )}
-                      style={pathname === item.href ? { color: ORANGE } : {}}
                     >
                       <Link href={item.href}>{item.label}</Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                 ))}
 
-                {/* Categories dropdown */}
+                {/* Mega Menu Categories */}
                 <NavigationMenuItem>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
                         className={cn(
-                          "flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#FF9900] hover:bg-orange-50 rounded-md transition-colors",
-                          pathname.startsWith("/categories") && "font-semibold bg-orange-50"
+                          "flex items-center gap-1.5 px-4 h-11 text-sm font-semibold text-gray-600 hover:text-[#FF9900] hover:bg-orange-50 rounded-md transition-colors",
+                          pathname.startsWith("/categories") && "text-[#FF9900]"
                         )}
-                        style={pathname.startsWith("/categories") ? { color: ORANGE } : {}}
                       >
                         Categories <ChevronDown className="h-3.5 w-3.5" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48">
-                      {categories.map((cat) => (
-                        <DropdownMenuItem key={cat.href} asChild className="hover:text-[#FF9900] cursor-pointer">
-                          <Link href={cat.href}>{cat.label}</Link>
-                        </DropdownMenuItem>
-                      ))}
+                    <DropdownMenuContent align="start" className="w-[200px] p-2 rounded-xl shadow-xl border-gray-100">
+                      <div className="flex flex-col">
+                        <Link 
+                          href="/products" 
+                          className="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-orange-50 hover:text-[#FF9900] rounded-md transition-colors"
+                        >
+                          All Categories
+                        </Link>
+                        {categories.slice(0, 5).map((cat) => (
+                          <Link 
+                            key={cat._id}
+                            href={`/products?category=${cat._id}`} 
+                            className="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-orange-50 hover:text-[#FF9900] rounded-md transition-colors"
+                          >
+                            {cat.name}
+                          </Link>
+                        ))}
+                      </div>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </NavigationMenuItem>
@@ -274,13 +343,34 @@ export default function Navbar() {
 
               {/* Auth button */}
               {isAuthenticated ? (
-                <Button
-                  onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-                  className="hidden md:flex rounded-full gap-2 font-bold text-sm hover:opacity-90"
-                  style={{ background: ORANGE, color: NAVY }}
-                >
-                  <User className="h-4 w-4" /> Sign Out
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      className="hidden md:flex rounded-full gap-2 font-bold text-sm hover:opacity-90"
+                      style={{ background: ORANGE, color: NAVY }}
+                    >
+                      <User className="h-4 w-4" /> Hi, {session.data?.user?.name?.split(' ')[0]}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 p-2 rounded-xl shadow-xl border-gray-100">
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="flex items-center gap-2 font-semibold cursor-pointer py-2">
+                        <User className="h-4 w-4" /> My Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/orders" className="flex items-center gap-2 font-semibold cursor-pointer py-2">
+                        <Truck className="h-4 w-4" /> My Orders
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+                      className="flex items-center gap-2 font-semibold cursor-pointer py-2 text-red-600 focus:text-red-600 focus:bg-red-50"
+                    >
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Button
                   onClick={() => router.push("/auth/signin")}

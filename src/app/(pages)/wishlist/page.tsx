@@ -12,6 +12,7 @@ import { useContext } from "react"
 import { cartContext } from "@/contexts/cartContext"
 import { toast } from "sonner"
 import { ORANGE, NAVY } from "@/utils/colors";
+import WishlistLoading from "./loading";
 
 
 
@@ -47,11 +48,7 @@ export default function WishlistPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: ORANGE }} />
-      </div>
-    )
+    return <WishlistLoading />;
   }
 
   if (!wishlistItems.length) {

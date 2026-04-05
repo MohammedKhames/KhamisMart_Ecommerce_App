@@ -9,6 +9,7 @@ import { formatPrice } from "@/helpers/formatPrice"
 import Image from "next/image"
 import Link from "next/link"
 import { ORANGE, NAVY } from "@/utils/colors";
+import OrdersLoading from "./loading";
 
 
 
@@ -51,11 +52,7 @@ export default function OrdersPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: ORANGE }} />
-      </div>
-    )
+    return <OrdersLoading />;
   }
 
   if (!orders.length) {

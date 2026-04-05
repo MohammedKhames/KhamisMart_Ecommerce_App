@@ -23,16 +23,15 @@ const handler = NextAuth({
 
     async authorize(credentials) {
       
-
         const response = await apiServices.signIn(credentials?.email ?? "",credentials?.password ?? "")
 
          if(response.message == "success"){
             const user = {
-                id:response.user.email ,
-                name:response.user.name ,
-                email:response.user.email ,
-                role:response.user.role ,
-                token:response.token ,
+                id: response.user._id, // Store real MongoDB ID
+                name: response.user.name,
+                email: response.user.email,
+                role: response.user.role,
+                token: response.token,
             }
             return user;
 
@@ -52,6 +51,7 @@ callbacks:{
 
     async session({session,token}){
         if(token && session.user){
+            session.user.id = token.id as string;
             session.user.role = token.role as string;
             session.user.token = token.token as string;
         }
@@ -60,6 +60,7 @@ callbacks:{
     
       async jwt({token,user}){
         if(user){
+            token.id = user.id;
             token.token = user.token;
             token.role = user.role;
         }

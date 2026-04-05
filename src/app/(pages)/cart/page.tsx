@@ -8,6 +8,7 @@ import { IAddToCartResponse } from '@/interfaces/cart/IAddToCartResponse'
 import { Loader2, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 import { ORANGE, NAVY } from "@/utils/colors";
+import CartLoading from './loading';
 
 
 
@@ -45,11 +46,7 @@ export default function Cart() {
   }
 
   if (isLoading || !cart) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: ORANGE }} />
-      </div>
-    )
+    return <CartLoading />;
   }
 
   return <ShoppingCart cart={cart} />

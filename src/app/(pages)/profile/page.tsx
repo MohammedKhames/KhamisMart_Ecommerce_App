@@ -1,195 +1,282 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Controller, useForm } from "react-hook-form"
-import * as z from "zod"
-import apiServices from '../../../../services/api'
-import { toast } from "sonner"
-import { useSession } from "next-auth/react"
-import { Loader2, KeyRound, UserRound, Mail, Lock, Save } from "lucide-react"
+import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { User, Mail, Phone, Lock, Save, Loader2, ShieldCheck, Camera } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import apiServices from "../../../../services/api";
 import { ORANGE, NAVY } from "@/utils/colors";
 
-
-
-
-// Password change schema
-const passwordSchema = z.object({
-  currentPassword: z.string().nonempty("Current password is required"),
-  password: z.string().nonempty("New password is required").regex(
-    /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
-    "Must be 8+ chars and include uppercase, lowercase, number, and special character"
-  ),
-  rePassword: z.string().nonempty("Please confirm new password"),
-}).refine(data => data.password === data.rePassword, {
-  message: "Passwords don't match",
-  path: ["rePassword"],
-})
-
-type PasswordFormData = z.infer<typeof passwordSchema>
-
 export default function ProfilePage() {
-  const { data: session } = useSession()
-  const token = session?.user?.token || ""
-  
-  const [activeTab, setActiveTab] = useState("security")
-  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
+  const { data: session, update } = useSession();
+  const router = useRouter();
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  // Password Form
-  const { control: passControl, handleSubmit: handlePassSubmit, reset: resetPassParams } = useForm<PasswordFormData>({
-    resolver: zodResolver(passwordSchema),
-    defaultValues: { currentPassword: "", password: "", rePassword: "" }
-  })
+  const [profileData, setProfileData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
 
-  async function onPasswordUpdate(data: PasswordFormData) {
-    if (!token) return toast.error("Session expired. Please log in again.")
-    setIsUpdatingPassword(true)
-    try {
-      const response = await apiServices.changeUserPassword(data.currentPassword, data.password, data.rePassword, token)
-      
-      if (response.message === "success") {
-         toast.success("Password changed successfully!", {
-           style: { background: NAVY, color: "#fff", border: `1px solid ${ORANGE}` }
-         })
-         resetPassParams()
-      } else {
-         toast.error(response.message || "Failed to update password.")
-      }
-    } catch {
-      toast.error("An error occurred while updating the password.")
-    } finally {
-      setIsUpdatingPassword(false)
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    password: "",
+    rePassword: "",
+  });
+
+  useEffect(() => {
+    if (session?.user) {
+      setProfileData({
+        name: session.user.name || "",
+        email: session.user.email || "",
+        phone: (session.user as any).phone || "",
+      });
     }
+  }, [session]);
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!session?.user?.token) return;
+
+    setIsUpdatingProfile(true);
+    try {
+      const res = await apiServices.updateMe(
+        profileData.name,
+        profileData.email,
+        profileData.phone,
+        session.user.token
+      );
+
+      if (res.message === "success") {
+        toast.success("Profile updated successfully!");
+        // Update local session
+        await update({
+          ...session,
+          user: {
+            ...session.user,
+            name: profileData.name,
+            email: profileData.email,
+          }
+        });
+      } else {
+        toast.error(res.message || "Failed to update profile");
+      }
+    } catch (error) {
+      toast.error("An error occurred while updating profile");
+    } finally {
+      setIsUpdatingProfile(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!session?.user?.token) return;
+
+    if (passwordData.password !== passwordData.rePassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      const res = await apiServices.changeUserPassword(
+        passwordData.currentPassword,
+        passwordData.password,
+        passwordData.rePassword,
+        session.user.token
+      );
+
+      if (res.message === "success") {
+        toast.success("Password changed successfully!");
+        setPasswordData({ currentPassword: "", password: "", rePassword: "" });
+      } else {
+        toast.error(res.message || "Failed to change password");
+      }
+    } catch (error) {
+      toast.error("An error occurred while changing password");
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
+  if (session === undefined) return null;
+  if (session === null) {
+     router.push("/auth/signin");
+     return null;
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl min-h-[60vh]">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight" style={{ color: NAVY }}>Manage Profile</h1>
-        <p className="text-gray-500 mt-2">Update your account settings and change your password here.</p>
-      </div>
-
-      <div className="w-full">
-        <div className="mb-8 p-1 inline-flex space-x-2 rounded-xl bg-gray-100/80">
-          <button 
-            type="button" 
-            onClick={() => setActiveTab("security")}
-            className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-colors ${activeTab === 'security' ? 'bg-white shadow-sm text-[#FF9900]' : 'text-gray-600 hover:text-gray-900'}`}>
-            <KeyRound className="w-4 h-4 mr-2 inline" />
-            Security & Password
-          </button>
-          <button 
-            type="button" 
-            onClick={() => setActiveTab("info")}
-            className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-colors ${activeTab === 'info' ? 'bg-white shadow-sm text-[#FF9900]' : 'text-gray-600 hover:text-gray-900'}`}>
-            <UserRound className="w-4 h-4 mr-2 inline" />
-            Account Details
-          </button>
+    <div className="container mx-auto max-w-5xl py-12 px-4">
+      <div className="flex flex-col md:flex-row gap-8">
+        
+        {/* Left Sidebar - Profile Summary */}
+        <div className="w-full md:w-1/3 lg:w-1/4">
+          <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-50 flex flex-col items-center text-center">
+            <div className="relative mb-6">
+              <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-orange-50 p-1 bg-gradient-to-tr from-orange-400 to-navy-900">
+                <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+                  <User size={64} className="text-gray-200" />
+                </div>
+              </div>
+              <button className="absolute bottom-1 right-1 bg-white p-2 rounded-full shadow-lg border border-gray-100 hover:scale-110 transition-transform">
+                <Camera size={16} style={{ color: ORANGE }} />
+              </button>
+            </div>
+            
+            <h2 className="text-2xl font-bold mb-1" style={{ color: NAVY }}>{session.user?.name}</h2>
+            <p className="text-sm text-gray-400 mb-6">{session.user?.email}</p>
+            
+            {/* Removed Role and Status as per user request */}
+          </div>
         </div>
 
-        {activeTab === "security" && (
-          <div className="m-0 focus-visible:outline-none">
-            <Card className="border-0 shadow-lg rounded-2xl overflow-hidden ring-1 ring-gray-100">
-              <CardHeader className="bg-white px-8 pt-8 pb-6 border-b border-gray-50">
-                <CardTitle className="text-xl">Change Password</CardTitle>
-                <CardDescription>
-                  Ensure your account is using a long, random password to stay secure.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="bg-white px-8 py-8">
-                <form id="password-form" onSubmit={handlePassSubmit(onPasswordUpdate)} className="space-y-6 max-w-md">
-                  
-                  {/* Current Password */}
-                  <Controller name="currentPassword" control={passControl} render={({ field, fieldState }) => (
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-gray-700">Current Password</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                          <Lock className="w-4 h-4" />
-                        </span>
-                        <Input {...field} type="password" placeholder="Enter current password" 
-                          className="pl-10 h-11 bg-gray-50 border-gray-200 focus:bg-white transition-colors" />
-                      </div>
-                      {fieldState.invalid && <p className="text-xs text-red-500 font-medium">{fieldState.error?.message}</p>}
-                    </div>
-                  )} />
+        {/* Right Content - Forms */}
+        <div className="flex-1 space-y-8">
+          
+          {/* Edit Profile Form */}
+          <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-50">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-3 rounded-2xl bg-orange-50">
+                <User size={24} style={{ color: ORANGE }} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold" style={{ color: NAVY }}>Personal Information</h3>
+                <p className="text-sm text-gray-400">Update your account detail profile</p>
+              </div>
+            </div>
 
-                  {/* New Password */}
-                  <Controller name="password" control={passControl} render={({ field, fieldState }) => (
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-gray-700">New Password</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                          <Lock className="w-4 h-4" />
-                        </span>
-                        <Input {...field} type="password" placeholder="Enter new password" 
-                          className="pl-10 h-11 bg-gray-50 border-gray-200 focus:bg-white transition-colors" />
-                      </div>
-                      {fieldState.invalid && <p className="text-xs text-red-500 font-medium">{fieldState.error?.message}</p>}
-                    </div>
-                  )} />
+            <form onSubmit={handleUpdateProfile} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-gray-700 ml-1">Full Name</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors" size={18} />
+                  <Input 
+                    value={profileData.name}
+                    onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                    placeholder="Enter full name"
+                    className="pl-10 h-12 rounded-xl focus:ring-orange-200"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-gray-700 ml-1">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors" size={18} />
+                  <Input 
+                    type="email"
+                    value={profileData.email}
+                    onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                    placeholder="Enter email"
+                    className="pl-10 h-12 rounded-xl focus:ring-orange-200"
+                  />
+                </div>
+              </div>
 
-                  {/* Confirm Password */}
-                  <Controller name="rePassword" control={passControl} render={({ field, fieldState }) => (
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-gray-700">Confirm New Password</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                          <Lock className="w-4 h-4" />
-                        </span>
-                        <Input {...field} type="password" placeholder="Re-enter new password" 
-                          className="pl-10 h-11 bg-gray-50 border-gray-200 focus:bg-white transition-colors" />
-                      </div>
-                      {fieldState.invalid && <p className="text-xs text-red-500 font-medium">{fieldState.error?.message}</p>}
-                    </div>
-                  )} />
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-gray-700 ml-1">Phone Number</label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors" size={18} />
+                  <Input 
+                    value={profileData.phone}
+                    onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                    placeholder="Enter phone number"
+                    className="pl-10 h-12 rounded-xl focus:ring-orange-200"
+                  />
+                </div>
+              </div>
 
-                </form>
-              </CardContent>
-              <CardFooter className="bg-gray-50 px-8 py-5 border-t border-gray-100">
-                <Button type="submit" form="password-form" disabled={isUpdatingPassword} 
-                  className="h-11 px-8 rounded-xl font-medium shadow-sm"
-                  style={{ background: NAVY }}>
-                  {isUpdatingPassword ? (
-                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Updating...</>
-                  ) : (
-                    <><Save className="w-4 h-4 mr-2" /> Save Password</>
-                  )}
+              <div className="md:col-span-2 flex justify-end pt-4">
+                <Button 
+                  type="submit" 
+                  disabled={isUpdatingProfile}
+                  className="rounded-xl px-8 h-12 font-bold shadow-lg shadow-orange-100 flex items-center gap-2"
+                  style={{ background: ORANGE, color: NAVY }}
+                >
+                  {isUpdatingProfile ? <Loader2 className="animate-spin" size={20} /> : <><Save size={18} /> Save Changes</>}
                 </Button>
-              </CardFooter>
-            </Card>
+              </div>
+            </form>
           </div>
-        )}
 
-        {activeTab === "info" && (
-          <div className="m-0 focus-visible:outline-none">
-            <Card className="border-0 shadow-lg rounded-2xl overflow-hidden ring-1 ring-gray-100">
-              <CardHeader className="bg-white px-8 pt-8 pb-6 border-b border-gray-50">
-                <CardTitle className="text-xl">Account Details</CardTitle>
-                <CardDescription>
-                  Basic information about your account. Email: {session?.user?.email}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="bg-white px-8 pt-8 pb-10">
-                 <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 flex flex-col items-center justify-center text-center max-w-lg mx-auto">
-                   <div className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold mb-4 shadow-sm"
-                     style={{ background: "rgba(255, 153, 0, 0.1)", color: ORANGE }}>
-                       {session?.user?.name?.[0]?.toUpperCase() || "U"}
-                   </div>
-                   <h2 className="text-xl font-bold text-gray-900">{session?.user?.name || "Customer"}</h2>
-                   <div className="flex items-center gap-2 mt-2 text-gray-500 text-sm">
-                     <Mail className="w-4 h-4" /> {session?.user?.email}
-                   </div>
-                 </div>
-              </CardContent>
-            </Card>
+          {/* Change Password Form */}
+          <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-50">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-3 rounded-2xl bg-navy-50">
+                <Lock size={24} style={{ color: NAVY }} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold" style={{ color: NAVY }}>Security</h3>
+                <p className="text-sm text-gray-400">Manage your password and security settings</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleChangePassword} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-700 ml-1">Current Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <Input 
+                      type="password"
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
+                      placeholder="••••••••"
+                      className="pl-10 h-12 rounded-xl"
+                    />
+                  </div>
+                </div>
+
+                <div className="hidden md:block"></div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-700 ml-1">New Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <Input 
+                      type="password"
+                      value={passwordData.password}
+                      onChange={(e) => setPasswordData({...passwordData, password: e.target.value})}
+                      placeholder="••••••••"
+                      className="pl-10 h-12 rounded-xl"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-700 ml-1">Confirm Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <Input 
+                      type="password"
+                      value={passwordData.rePassword}
+                      onChange={(e) => setPasswordData({...passwordData, rePassword: e.target.value})}
+                      placeholder="••••••••"
+                      className="pl-10 h-12 rounded-xl"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <Button 
+                  type="submit" 
+                  disabled={isChangingPassword}
+                  className="rounded-xl px-8 h-12 font-bold shadow-lg shadow-navy-100 flex items-center gap-2"
+                  style={{ background: NAVY, color: "#fff" }}
+                >
+                  {isChangingPassword ? <Loader2 className="animate-spin" size={20} /> : <><Lock size={18} /> Update Password</>}
+                </Button>
+              </div>
+            </form>
           </div>
-        )}
 
+        </div>
       </div>
     </div>
-  )
+  );
 }

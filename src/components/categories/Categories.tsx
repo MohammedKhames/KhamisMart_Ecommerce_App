@@ -8,8 +8,6 @@ import { ORANGE, NAVY } from "@/utils/colors";
 export default async function Categories() {
 
 
-
-
      // getting all categories 
     let categories: ICategory[] = [];
     try {
@@ -21,14 +19,16 @@ export default async function Categories() {
 
     function CatItem({categ}:{categ:ICategory}) {
         return (
-          <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer border border-gray-100">
-            <img
-              src={categ.image}
-              alt={categ.name}
-              className="w-20 h-20 object-cover mb-4 rounded-full shadow-sm"
-            />
-            <h3 className="text-sm font-bold text-gray-800 text-center">{categ.name}</h3>
-          </div>
+          <Link href={`/products?category=${categ._id}`} className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer border border-gray-100 group">
+            <div className="relative w-20 h-20 mb-4 overflow-hidden rounded-full shadow-sm ring-2 ring-gray-50 group-hover:ring-orange-100 transition-all">
+              <img
+                src={categ.image}
+                alt={categ.name}
+                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
+              />
+            </div>
+            <h3 className="text-sm font-bold text-gray-800 text-center group-hover:text-orange-600 transition-colors">{categ.name}</h3>
+          </Link>
         );
       }
 
