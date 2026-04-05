@@ -16,7 +16,8 @@ class ApiServices {
 
     #BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
-    // Build headers — token is optional (passed per call when needed)
+    // Build headers 
+    // here the token is optional (passed per call when needed)
     #getHeaders(token?: string) {
         return {
             "content-type": "application/json",
@@ -24,7 +25,7 @@ class ApiServices {
         }
     }
 
-    // ─── Products ─────────────────────────────────────────────────────────────
+    // Products
 
     async getProducts(): Promise<IProduct[]> {
         const response = await fetch(this.#BASE_URL + "/api/v1/products")
@@ -44,7 +45,7 @@ class ApiServices {
         return data.data;
     }
 
-    // ─── Cart ─────────────────────────────────────────────────────────────────
+    // Cart 
 
     async addProductsToCart(productId: string, token: string): Promise<IAddToCartResponse> {
         const response = await fetch(this.#BASE_URL + "/api/v2/cart", {
@@ -87,7 +88,7 @@ class ApiServices {
         return response.json();
     }
 
-    // ─── Checkout / Orders ────────────────────────────────────────────────────
+    // Checkout / Orders 
 
     async checkout(cartId: string, token: string) {
         return fetch(
@@ -124,7 +125,7 @@ class ApiServices {
         return Array.isArray(data) ? data : data.data ?? [];
     }
 
-    // ─── Categories ───────────────────────────────────────────────────────────
+    // Categories 
 
     async getCategories(): Promise<ICategory[]> {
         const response = await fetch(this.#BASE_URL + "/api/v1/categories")
@@ -132,7 +133,7 @@ class ApiServices {
         return data.data;
     }
 
-    // ─── Brands ───────────────────────────────────────────────────────────────
+    // Brands 
 
     async getBrands(): Promise<IBrand[]> {
         const response = await fetch(this.#BASE_URL + "/api/v1/brands")
@@ -152,7 +153,7 @@ class ApiServices {
         return data.data;
     }
 
-    // ─── Auth ─────────────────────────────────────────────────────────────────
+    //  Auth 
 
     async signIn(email: string, password: string): Promise<SignInResponse> {
         const response = await fetch(this.#BASE_URL + "/api/v1/auth/signin", {
@@ -172,7 +173,7 @@ class ApiServices {
         return response.json();
     }
 
-    // ─── Wishlist ─────────────────────────────────────────────────────────────
+    //  Wishlist 
 
     async getWishlist(token: string): Promise<IWishlistResponse> {
         const response = await fetch(this.#BASE_URL + "/api/v1/wishlist", {
@@ -197,7 +198,7 @@ class ApiServices {
         })
         return response.json();
     }
-    // ─── User Profile ─────────────────────────────────────────────────────────
+    // User Profile 
 
     async updateMe(name: string, email: string, phone: string, token: string): Promise<any> {
         const response = await fetch(this.#BASE_URL + "/api/v1/users/updateMe/", {
