@@ -60,7 +60,7 @@ To run this project locally, follow these steps:
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## Screenshots
-<img width="1848" height="792" alt="image" src="https://github.com/user-attachments/assets/b66ffe03-391c-4446-8cc8-4e469e517cae" />
+<img width="100%" height="100%" alt="image" src="https://github.com/user-attachments/assets/b66ffe03-391c-4446-8cc8-4e469e517cae" />
 
 <img width="1878" height="795" alt="image" src="https://github.com/user-attachments/assets/fb7d2baf-2e63-42ab-953e-cb1aae23a0e1" />
 
