@@ -138,9 +138,12 @@ h1,h2,h3,h4,h5,h6{
   }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
   }
   html {
     @apply font-sans;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
   }
 
   button,a{

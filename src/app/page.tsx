@@ -23,7 +23,7 @@ export default async function Home() {
     <div className="flex flex-col flex-1 bg-zinc-50 font-sans dark:bg-black">
 
       {/* Slider */}
-      <div className="w-[100vw] relative left-1/2 -translate-x-1/2 -mt-10 mb-10">
+      <div className="w-full relative -mt-10 mb-6 md:mb-10 overflow-hidden sm:rounded-3xl shadow-sm">
         <HeroSlider pageList={[slider1.src, slider2.src, slider3.src]} />
       </div>
 

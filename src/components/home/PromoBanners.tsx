@@ -7,7 +7,7 @@ export function PromoBanners() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Banner 1 - Navy */}
-        <div className="relative rounded-3xl p-8 overflow-hidden text-white shadow-xl transition-all duration-500 origin-right hover:[transform:perspective(1000px)_rotateY(8deg)] hover:shadow-2xl"
+        <div className="relative rounded-3xl p-6 md:p-8 overflow-hidden text-white shadow-xl transition-all duration-500 origin-right md:hover:[transform:perspective(1000px)_rotateY(8deg)] hover:shadow-2xl"
              style={{ background: "linear-gradient(145deg, #131921 0%, #1a2634 100%)" }}>
           
           {/* Decorative shapes */}
@@ -19,12 +19,12 @@ export function PromoBanners() {
               Deal of the Day
             </div>
             
-            <h3 className="text-3xl font-extrabold mb-2 tracking-tight text-[#FF9900]">Fresh Organic Fruits</h3>
-            <p className="text-gray-300 mb-6 font-medium">Get up to 40% off on selected organic fruits</p>
+            <h3 className="text-2xl md:text-3xl font-extrabold mb-1 md:mb-2 tracking-tight text-[#FF9900]">Fresh Organic Fruits</h3>
+            <p className="text-gray-300 text-sm md:text-base mb-4 md:mb-6 font-medium">Get up to 40% off on selected organic fruits</p>
             
-            <div className="flex items-center gap-4 mb-8">
-              <span className="text-4xl font-black text-[#FF9900]">40% OFF</span>
-              <span className="text-sm border border-white/20 bg-white/5 px-3 py-1.5 rounded-lg">
+            <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-6 md:mb-8">
+              <span className="text-3xl md:text-4xl font-black text-[#FF9900]">40% OFF</span>
+              <span className="text-[11px] md:text-sm border border-white/20 bg-white/5 px-3 py-1.5 rounded-lg">
                 Use code: <strong className="font-bold text-[#FF9900]">ORGANIC40</strong>
               </span>
             </div>
@@ -36,7 +36,7 @@ export function PromoBanners() {
         </div>
 
         {/* Banner 2 - Orange */}
-        <div className="relative rounded-3xl p-8 overflow-hidden text-[#131921] shadow-xl transition-all duration-500 origin-left hover:[transform:perspective(1000px)_rotateY(-8deg)] hover:shadow-2xl"
+        <div className="relative rounded-3xl p-6 md:p-8 overflow-hidden text-[#131921] shadow-xl transition-all duration-500 origin-left md:hover:[transform:perspective(1000px)_rotateY(-8deg)] hover:shadow-2xl"
              style={{ background: "linear-gradient(135deg, #FF9900 0%, #FFB033 100%)" }}>
           
           {/* Decorative shapes */}
@@ -48,12 +48,12 @@ export function PromoBanners() {
               New Arrivals
             </div>
             
-            <h3 className="text-3xl font-extrabold mb-2 tracking-tight">Exotic Vegetables</h3>
-            <p className="text-[#131921]/80 mb-6 font-semibold">Discover our latest collection of premium vegetables</p>
+            <h3 className="text-2xl md:text-3xl font-extrabold mb-1 md:mb-2 tracking-tight">Exotic Vegetables</h3>
+            <p className="text-[#131921]/80 text-sm md:text-base mb-4 md:mb-6 font-semibold">Discover our latest collection of premium vegetables</p>
             
-            <div className="flex items-center gap-4 mb-8">
-              <span className="text-4xl font-black">25% OFF</span>
-              <span className="text-sm border border-[#131921]/20 bg-[#131921]/5 px-3 py-1.5 rounded-lg font-medium">
+            <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-6 md:mb-8">
+              <span className="text-3xl md:text-4xl font-black">25% OFF</span>
+              <span className="text-[11px] md:text-sm border border-[#131921]/20 bg-[#131921]/5 px-3 py-1.5 rounded-lg font-medium">
                 Use code: <strong className="font-extrabold">FRESH25</strong>
               </span>
             </div>

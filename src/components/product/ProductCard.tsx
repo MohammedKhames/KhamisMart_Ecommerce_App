@@ -107,8 +107,8 @@ export function ProductCard({
   };
 
   return (
-    <Link href={`/products/${id}`} className="block">
-      <Card className="w-full max-w-sm overflow-hidden group bg-background text-foreground shadow-md hover:shadow-xl transition-all duration-300 rounded-xl cursor-pointer">
+    <Link href={`/products/${id}`} className="block h-full">
+      <Card className="w-full max-w-sm h-full flex flex-col overflow-hidden group bg-background text-foreground shadow-md hover:shadow-xl transition-all duration-300 rounded-xl cursor-pointer">
         {/* Image carousel */}
         <div className="relative aspect-[3/4] overflow-hidden">
           <motion.img
@@ -170,9 +170,11 @@ export function ProductCard({
         </div>
 
         {/* Content */}
-        <CardContent className="p-4 pb-2">
+        <CardContent className="p-4 pb-2 flex-1">
           <div className="space-y-2">
-            <p className="font-semibold line-clamp-2 text-sm leading-snug">{name}</p>
+            <div className="h-[40px]"> {/* Fixed height for 2 lines of text */}
+               <p className="font-semibold line-clamp-2 text-sm leading-snug">{name}</p>
+            </div>
             <div className="flex items-center gap-2">
               <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
               <span className="text-sm font-medium">{rating}</span>

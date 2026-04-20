@@ -3,8 +3,8 @@ import { Mail, Smartphone, ArrowRight, Tag, Gift, Leaf } from "lucide-react";
 
 export function Newsletter() {
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="bg-[#FF9900]/5 rounded-[2rem] p-8 lg:p-12 border border-[#FF9900]/20">
+    <div className="container mx-auto px-4 py-10 md:py-12">
+      <div className="bg-[#FF9900]/5 rounded-[2rem] p-6 md:p-8 lg:p-12 border border-[#FF9900]/20">
         <div className="flex flex-col lg:flex-row gap-12 items-center">
           
           {/* Left section: Newsletter Form */}
@@ -20,10 +20,10 @@ export function Newsletter() {
             </div>
 
             <div>
-              <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight mb-4">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight mb-4">
                 Get the Freshest Updates <span className="text-[#FF9900] block sm:inline">Delivered Free</span>
               </h2>
-              <p className="text-lg text-gray-600 font-medium">
+              <p className="text-base md:text-lg text-gray-600 font-medium">
                 Weekly recipes, seasonal offers & exclusive member perks.
               </p>
             </div>
@@ -40,11 +40,11 @@ export function Newsletter() {
               </div>
             </div>
 
-            <form className="max-w-md relative flex flex-col sm:flex-row gap-3">
+            <form className="w-full sm:max-w-md relative flex flex-col sm:flex-row gap-3">
               <Input placeholder="you@example.com" />
               <button 
                 type="submit" 
-                className="bg-[#FF9900] hover:bg-[#e68a00] text-[#131921] font-bold h-14 px-8 rounded-xl transition-all shadow-lg shadow-[#FF9900]/20 active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap"
+                className="bg-[#FF9900] hover:bg-[#e68a00] text-[#131921] font-bold h-12 md:h-14 px-8 rounded-xl transition-all shadow-lg shadow-[#FF9900]/20 active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 Subscribe <ArrowRight className="w-4 h-4" />
               </button>
@@ -107,7 +107,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input 
       {...props}
-      className="w-full h-14 pl-6 pr-4 rounded-xl border border-gray-200 bg-white shadow-sm focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all outline-none"
+      className="w-full h-12 md:h-14 pl-6 pr-4 rounded-xl border border-gray-200 bg-white shadow-sm focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all outline-none"
     />
   )
 }

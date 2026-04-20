@@ -59,7 +59,7 @@ export default async function BrandPage({ params }: Props) {
           <p>No products found for this brand.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {products.map((product) => (
             <ProductCard
               key={product._id}

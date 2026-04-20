@@ -71,6 +71,7 @@ export default function Navbar() {
   const [allProducts, setAllProducts] = useState<IProduct[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [isMobileSearchVisible, setIsMobileSearchVisible] = useState(false);
   const isAuthenticated = session.status === "authenticated";
 
   // Fetch all products for search autocomplete and categories
@@ -148,8 +149,8 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-5">
-            <a href="tel:+96560927541" className="hidden md:flex items-center gap-1.5 hover:text-[#FF9900] transition-colors">
-              <Phone className="h-3 w-3" /> +(965) 60927541
+            <a href="tel:+96560927541" className="hidden sm:flex items-center gap-1.5 hover:text-[#FF9900] transition-colors">
+              <Phone className="h-3 w-3" /> <span className="hidden lg:inline">+(965) 60927541</span>
             </a>
             
             {!isAuthenticated ? (
@@ -181,9 +182,20 @@ export default function Navbar() {
       {/* ── Main Navbar ── */}
       <div className="bg-white/95 backdrop-blur-md border-b border-gray-100">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-6">
-
+          <div className="flex items-center justify-between gap-4">
             <Logo />
+
+            {/* Mobile Search Toggle */}
+            <div className="flex sm:hidden flex-1 justify-end">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setIsMobileSearchVisible(!isMobileSearchVisible)}
+                className={cn("text-gray-500", isMobileSearchVisible && "text-[#FF9900] bg-orange-50")}
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+            </div>
 
             {/* Search */}
             <div className="flex-1 max-w-xl hidden sm:flex mx-4 relative">
@@ -244,6 +256,37 @@ export default function Navbar() {
                 </div>
               )}
             </div>
+
+            {/* Mobile Search Bar (Expandable) */}
+            {isMobileSearchVisible && (
+              <div className="sm:hidden w-full mt-3 animate-in slide-in-from-top-2 duration-200">
+                <div
+                  className="flex w-full rounded-xl overflow-hidden shadow-sm ring-1 ring-orange-100"
+                  style={{ border: `1.5px solid ${ORANGE}` }}
+                >
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search products..."
+                    autoFocus
+                    className="border-0 rounded-none focus-visible:ring-0 bg-white text-sm h-10"
+                    onKeyDown={(e) => { 
+                      if (e.key === "Enter") {
+                        handleSearch();
+                        setIsMobileSearchVisible(false);
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => { handleSearch(); setIsMobileSearchVisible(false); }}
+                    className="px-4 flex items-center justify-center"
+                    style={{ background: ORANGE }}
+                  >
+                    <Search className="h-4 w-4" style={{ color: NAVY }} />
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Desktop Nav */}
             <NavigationMenu className="hidden lg:flex">
@@ -374,7 +417,7 @@ export default function Navbar() {
               ) : (
                 <Button
                   onClick={() => router.push("/auth/signin")}
-                  className="hidden md:flex rounded-full gap-2 font-bold text-sm hover:opacity-90"
+                  className="hidden sm:flex rounded-full gap-2 font-bold text-sm hover:opacity-90"
                   style={{ background: ORANGE, color: NAVY }}
                 >
                   <User className="h-4 w-4" /> Sign In

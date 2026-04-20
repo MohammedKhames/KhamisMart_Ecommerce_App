@@ -12,10 +12,6 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
-
-
-
-
 const slideContent = [
   {
     badge:        "Get 20% off your first order",
@@ -93,7 +89,7 @@ export default function HeroSlider({ pageList }: HeroSliderProps) {
               {({ isActive }) => (
                 <div
                   className="relative w-full overflow-hidden bg-[#131921]"
-                  style={{ height: "clamp(400px, 45vw, 650px)" }}
+                  style={{ height: "clamp(300px, 45vh, 650px)" }}
                 >
                   {/* Background image with slow pan effect */}
                   <div 
@@ -107,34 +103,28 @@ export default function HeroSlider({ pageList }: HeroSliderProps) {
                       fill
                       priority={i === 0}
                       className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 100vw"
+                      sizes="100vw"
                     />
                   </div>
 
-                  {/* Enhanced dark gradient overlay for text readability */}
+                  {/* Dark gradient overlay - softened on mobile */}
                   <div
                     className="absolute inset-0 z-10"
                     style={{
-                      background: `linear-gradient(90deg, ${NAVY} 0%, rgba(19, 25, 33, 0.8) 35%, rgba(19, 25, 33, 0.1) 75%, transparent 100%)`,
+                      background: `linear-gradient(90deg, ${NAVY} 0%, rgba(19, 25, 33, 0.7) 40%, rgba(19, 25, 33, 0.1) 80%, transparent 100%)`,
                     }}
                   />
                   
-                  {/* Secondary subtle bottom gradient for pagination/mobile blending */}
-                  <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#131921]/90 via-[#131921]/20 to-transparent lg:hidden" />
+                  {/* Mobile-only bottom gradient to ensure text readability */}
+                  <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#131921] via-transparent to-transparent opacity-60 sm:hidden" />
 
-                  {/* Left accent bar */}
-                  <div
-                    className="absolute left-0 top-0 h-full w-1.5 z-20"
-                    style={{ background: ORANGE }}
-                  />
-
-                  {/* Text content with staggered animations */}
-                  <div className="relative z-20 h-full flex flex-col justify-center px-6 md:px-16 lg:px-24 gap-6 max-w-2xl">
+                  {/* Text content */}
+                  <div className="relative z-20 h-full flex flex-col justify-center px-6 md:px-16 lg:px-24 gap-4 md:gap-6 max-w-2xl">
                     
                     {/* Badge */}
                     <div className="overflow-hidden">
                       <span
-                        className={`inline-block text-xs md:text-sm font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg transition-all duration-700 ease-out transform ${
+                        className={`inline-block text-[10px] md:text-sm font-black px-3 md:px-4 py-1 md:py-1.5 rounded-full uppercase tracking-wider shadow-lg transition-all duration-700 ease-out transform ${
                           isActive ? 'translate-y-0 opacity-100 delay-300' : 'translate-y-8 opacity-0'
                         }`}
                         style={{ background: ORANGE, color: NAVY }}
@@ -146,7 +136,7 @@ export default function HeroSlider({ pageList }: HeroSliderProps) {
                     {/* Title */}
                     <div className="overflow-hidden">
                       <h1
-                        className={`text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] font-extrabold text-white leading-[1.1] transition-all duration-700 ease-out transform ${
+                        className={`text-2xl sm:text-4xl md:text-5xl lg:text-[4rem] font-extrabold text-white leading-[1.1] transition-all duration-700 ease-out transform ${
                           isActive ? 'translate-y-0 opacity-100 delay-500' : 'translate-y-12 opacity-0'
                         }`}
                         style={{ textShadow: "0 4px 24px rgba(0,0,0,0.5)" }}
@@ -160,27 +150,27 @@ export default function HeroSlider({ pageList }: HeroSliderProps) {
                     </div>
 
                     {/* Buttons */}
-                    <div className={`flex items-center gap-4 flex-wrap mt-4 transition-all duration-700 ease-out transform ${
+                    <div className={`flex items-center gap-3 md:gap-4 flex-wrap mt-2 md:mt-4 transition-all duration-700 ease-out transform ${
                           isActive ? 'translate-y-0 opacity-100 delay-700' : 'translate-y-8 opacity-0'
                         }`}>
                       <Link
                         href={content.primaryBtn.href}
-                        className="px-8 py-3.5 rounded-full font-extrabold text-sm md:text-base transition-all hover:opacity-90 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,153,0,0.3)] hover:shadow-[0_0_30px_rgba(255,153,0,0.5)]"
+                        className="px-6 py-2.5 md:px-8 md:py-3.5 rounded-full font-extrabold text-xs md:text-base border-2 border-transparent transition-all hover:opacity-90 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,153,0,0.3)]"
                         style={{ background: ORANGE, color: NAVY }}
                       >
                         {content.primaryBtn.label}
                       </Link>
                       <Link
                         href={content.secondaryBtn.href}
-                        className="px-8 py-3.5 rounded-full font-extrabold text-sm md:text-base border-2 text-white transition-all hover:scale-105 active:scale-95 bg-white/5 backdrop-blur-sm"
+                        className="px-6 py-2.5 md:px-8 md:py-3.5 rounded-full font-extrabold text-xs md:text-base border-2 text-white transition-all hover:scale-105 active:scale-95 bg-white/5 backdrop-blur-sm"
                         style={{ borderColor: ORANGE }}
                         onMouseEnter={(e) => {
-                          (e.currentTarget as HTMLAnchorElement).style.background = ORANGE;
-                          (e.currentTarget as HTMLAnchorElement).style.color = NAVY;
+                          e.currentTarget.style.background = ORANGE;
+                          e.currentTarget.style.color = NAVY;
                         }}
                         onMouseLeave={(e) => {
-                          (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,255,255,0.05)";
-                          (e.currentTarget as HTMLAnchorElement).style.color = "#fff";
+                          e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                          e.currentTarget.style.color = "#fff";
                         }}
                       >
                         {content.secondaryBtn.label}
@@ -194,27 +184,27 @@ export default function HeroSlider({ pageList }: HeroSliderProps) {
         })}
       </Swiper>
 
-      {/* Elegantly styled custom arrows, only visible on hover (via group) on desktop */}
+      {/* Navigation Arrows (Desktop Only) */}
       <button
-        className="hero-prev absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 -translate-x-4 group-hover:translate-x-0"
+        className="hero-prev absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 -translate-x-4 group-hover:translate-x-0 hidden sm:flex"
         style={{
           background: "rgba(255,255,255,0.1)",
           border: `1px solid ${ORANGE}40`,
           backdropFilter: "blur(8px)",
         }}
       >
-        <ChevronLeft className="h-6 w-6 text-white" />
+        <ChevronLeft className="h-5 w-5 md:h-6 md:w-6 text-white" />
       </button>
 
       <button
-        className="hero-next absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 translate-x-4 group-hover:translate-x-0"
+        className="hero-next absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 translate-x-4 group-hover:translate-x-0 hidden sm:flex"
         style={{
           background: "rgba(255,255,255,0.1)",
           border: `1px solid ${ORANGE}40`,
           backdropFilter: "blur(8px)",
         }}
       >
-        <ChevronRight className="h-6 w-6 text-white" />
+        <ChevronRight className="h-5 w-5 md:h-6 md:w-6 text-white" />
       </button>
     </div>
   );
