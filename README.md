@@ -59,12 +59,19 @@ To run this project locally, follow these steps:
 5. **Open the browser**:
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-## 🎨 Branding Colors
+## Screenshots
+<img width="1848" height="792" alt="image" src="https://github.com/user-attachments/assets/b66ffe03-391c-4446-8cc8-4e469e517cae" />
 
-| Color | Hex | Tailwind Utility |
-|-------|-----|------------------|
-| **Brand Orange** | `#FF9900` | `text-[#FF9900]` / `bg-[#FF9900]` |
-| **Brand Navy** | `#131921` | `text-[#131921]` / `bg-[#131921]` |
+<img width="1878" height="795" alt="image" src="https://github.com/user-attachments/assets/fb7d2baf-2e63-42ab-953e-cb1aae23a0e1" />
+
+<img width="1783" height="744" alt="image" src="https://github.com/user-attachments/assets/a9a4aed3-04ae-4a97-8ec4-0fb9f40e9044" />
+
+<img width="1628" height="827" alt="image" src="https://github.com/user-attachments/assets/f14dea98-5f98-4d45-91cd-73d27931ee85" />
+
+<img width="1436" height="858" alt="image" src="https://github.com/user-attachments/assets/49bca381-4796-4372-b6c2-6445da9760e4" />
+
+<img width="1487" height="858" alt="image" src="https://github.com/user-attachments/assets/f7d9f965-ae0e-4322-bf84-ff1a61867a86" />
+
 
 ## 📐 Project Structure
 
